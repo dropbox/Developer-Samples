@@ -1,9 +1,8 @@
-
-#Convert Dropbox activity log to CEF events
+# Convert Dropbox activity log to CEF events
 
 This script can be used to transform Dropbox activity log events retrieved from the [team log endpoint](https://www.dropbox.com/developers/documentation/http/teams#team_log-get_events) to the [CEF standard](https://community.microfocus.com/t5/ArcSight-Connectors/ArcSight-Common-Event-Format-CEF-Implementation-Standard/ta-p/1645557?attachment-id=68077) developed by MicroFocus ArcSight.
 
-###Getting Started
+### Getting Started
 
 To use the script you will need to have a copy of Python 3.0+ and Dropbox Business access token with either the **"Team Auditing"** or **"Team Member File Access"** permission.
 
@@ -12,7 +11,7 @@ To get started with running the script you will need to paste your access token 
 With your access token put in you can then proceed to run and execute the script simply by calling ```python cefParser.py``` and associated arguments. You can see the full list of arguments possible in the below section.
 
 
-###Run Examples
+### Run Examples
 
 **Objective**: Generate a CSV of CEF events for all single sign on events 
 ```
@@ -33,7 +32,7 @@ Here you’re sending all events to the host and port you’ve designated, by us
 python cefParser.py --host 121.121.01.10 --port 1234 --start_time 2018-01-01T00:00:00Z --end_time 2019-01-01T00:00:00Z
 ```
 
-###Arguments
+### Arguments
 ```'-c','--category'```: The category of events you want to pull from audit log. If no category is passed all events are pulled.  
 ```categories: 'apps', 'comments', 'devices', 'domains', 'file\_operations', 'file\_requests', 'groups', 'logins', 'members', 'paper', 'passwords', 'reports', 'sharing', 'showcase', 'sso', 'team\_folders', 'team\_policies', 'team\_profile', 'tfa', 'trusted\_teams'  ```
 ```'-l','--limit'```: The max amount of events to pull from the audit log at one time, default is 1000.  
@@ -44,7 +43,7 @@ python cefParser.py --host 121.121.01.10 --port 1234 --start_time 2018-01-01T00:
 ```'-et','--end_time'``` : The end time from when to include events (exclusive), format=```%%Y-%%m-%%dT%%H:%%M:%%SZ```  
 ```'-csr', '--cursor'```: Pass event cursor from activity log, to pull new events from last query.
 
-###Licensing
+### Licensing
 The script within this folder is covered by the Apache License as described in LICENSE.txt.
 
 ##### Please carefully note: 

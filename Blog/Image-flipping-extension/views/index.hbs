@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      
+      * {
+        box-sizing: border-box;
+      }
+
+      .row {
+        display: flex;
+      }
+
+      /* Container holding the image and the text */
+      .container {
+        padding: 5px;
+        position: relative;
+      }
+
+      /* Bottom right text */
+      .text-block {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background-color: black;
+        color: white;
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      a {
+        text-decoration: none;
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #4CAF50;
+        color: white;
+      }
+
+      a:hover {
+        background-color: #ddd;
+        color: black;
+      }
+
+    </style>
+  </head>
+  <body>
+    <h2>Flip my image</h2>
+    <p>Hi {{dropbox_name}}!</p>
+    <p>This is how your flipped image looks</p>
+
+    <div class="row">
+      <div class="container">
+        <img src="{{image_original_path}}" alt="Original" style="width:100%;">
+        <div class="text-block"> 
+          <h4>Original</h4>
+        </div>
+      </div>
+
+      <div class="container">
+        <img src="{{image_transformed_path}}" alt="Flipped" style="width:100%;">
+        <div class="text-block"> 
+          <h4>Flipped</h4>
+        </div>
+      </div>
+    </div>
+
+    <a href="/save">Save to Dropbox</a>
+
+  </body>
+</html>

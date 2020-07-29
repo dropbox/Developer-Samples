@@ -24,7 +24,7 @@ If you are using a [*Scoped access*](https://www.dropbox.com/lp/developers/refer
 ## Setting up OAuth
 This code sample implements OAuth code authentication flow allowing multiple users to authorize this application. For more information about implementing OAuth please refer to our [OAuth Guide](https://www.dropbox.com/lp/developers/reference/oauth-guide). To configure OAuth in your app you need to follow these two steps in the *Settings* tab in the App Console. 
 
-1. Click on *Enable additional users* **if you haven’t already done so, and your app isn’t already in [production mode](https://www.dropbox.com/developers/reference/developer-guide#production-approval)
+1. Click on *Enable additional users* if you haven’t already done so, and your app isn’t already in [production mode](https://www.dropbox.com/developers/reference/developer-guide#production-approval)
 
 2. Enter the redirect URI http://localhost:3000/auth as shown in the following screenshot
 
@@ -41,13 +41,13 @@ Add an Extension with the following configuration:
 -  **Supported File Types -** .jpg, .jpeg, .png
 -  **Max File Size (MB) -** 10
 
-![Image flipping Extension settings](https://github.com/dropbox/Developer-Samples/blob/master/Blog/Image-flipping-extension/public/images/ext-settings.png)
+![Image flipping Extension settings](https://github.com/dropbox/Developer-Samples/blob/master/Blog/Image-flipping-extension/public/images/ext-settings.png?raw=true)
 
-After you save it, click on *Edit*  ****to modify the extension and **uncheck** the *Only me* option in Visibility settings. This will allow the Extension to be presented to users who link their accounts via OAuth in the Open menu and connected apps page. The final configuration of your Extension should look just like this:
+After you save it, click on *Edit* to modify the extension and **uncheck** the *Only me* option in Visibility settings. This will allow the Extension to be presented to users who link their accounts via OAuth in the Open menu and connected apps page. The final configuration of your Extension should look just like this:
 
 ![Image flipping Extension settings with Visibility set to  "All linked users”](https://github.com/dropbox/Developer-Samples/blob/master/Blog/Image-flipping-extension/public/images/ext-all-linked-users.png?raw=true)
 
-Now that the extension is configured, you should be able to see the extension **in your own Dropbox account** even without going through OAuth. To test it, in dropbox.com browse any image with one of the specified file types and then click on **Open→ Connect more apps → <YourAppName>**. This will trigger the file action and a new tab will be launched with the Extension URI you registered. After you link the app through OAuth, the extension will be displayed directly in the Open Menu and will be listed in the connected apps page as explained later.
+Now that the extension is configured, you should be able to see the extension **in your own Dropbox account** even without going through OAuth. To test it, in dropbox.com browse any image with one of the specified file types and then click on **Open→ Connect more apps → "<YourAppName>"**. This will trigger the file action and a new tab will be launched with the Extension URI you registered. After you link the app through OAuth, the extension will be displayed directly in the Open Menu and will be listed in the connected apps page as explained later.
 
 ## Running the code
 

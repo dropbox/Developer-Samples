@@ -28,7 +28,7 @@ This code sample implements OAuth code authentication flow allowing multiple use
 
 2. Enter the redirect URI http://localhost:3000/auth as shown in the following screenshot
 
-![Redirect URI settings for extension sample](https://github.com/dropbox/developer-samples/blob/master/blog/image-flipping-extension/public/images/ext-redirect-settings.png?raw=true)
+![Redirect URI settings for extension sample](https://github.com/dropbox/Developer-Samples/blob/master/Blog/Image-flipping-extension/public/images/ext-redirect-settings.png?raw=true)
 
   
 ## Setting up the Extension
@@ -41,11 +41,11 @@ Add an Extension with the following configuration:
 -  **Supported File Types -** .jpg, .jpeg, .png
 -  **Max File Size (MB) -** 10
 
-![Image flipping Extension settings](https://github.com/dropbox/developer-samples/blob/master/blog/image-flipping-extension/public/images/ext-settings.png?raw=true)
+![Image flipping Extension settings](https://github.com/dropbox/Developer-Samples/blob/master/Blog/Image-flipping-extension/public/images/ext-settings.png)
 
 After you save it, click on *Edit*  ****to modify the extension and **uncheck** the *Only me* option in Visibility settings. This will allow the Extension to be presented to users who link their accounts via OAuth in the Open menu and connected apps page. The final configuration of your Extension should look just like this:
 
-![Image flipping Extension settings with Visibility set to  "All linked users”](https://github.com/dropbox/developer-samples/blob/master/blog/image-flipping-extension/public/images/ext-all-linked-users.png?raw=true)
+![Image flipping Extension settings with Visibility set to  "All linked users”](https://github.com/dropbox/Developer-Samples/blob/master/Blog/Image-flipping-extension/public/images/ext-all-linked-users.png?raw=true)
 
 Now that the extension is configured, you should be able to see the extension **in your own Dropbox account** even without going through OAuth. To test it, in dropbox.com browse any image with one of the specified file types and then click on **Open→ Connect more apps → <YourAppName>**. This will trigger the file action and a new tab will be launched with the Extension URI you registered. After you link the app through OAuth, the extension will be displayed directly in the Open Menu and will be listed in the connected apps page as explained later.
 
@@ -75,17 +75,18 @@ When a user navigates to our deployed server at http://localhost:3000, it will a
 
 At this point, any Dropbox account should be able to authorize this app in your local machine and see the sample extension on the Open dropdown of an image file. If you want to test several Dropbox users at the same time, you can do it in your local machine by running different web browsers or with the same web browser using different browser sessions (such as incognito mode or different Chrome profiles). You can also use localhost tunneling tools such as [ngrok](https://ngrok.com/) to test outside your local machine.
 
-![Image flipping Extension authorization page](https://github.com/dropbox/developer-samples/blob/master/blog/image-flipping-extension/public/images/ext-auth.png?raw=true)
+![Image flipping Extension authorization page](https://github.com/dropbox/Developer-Samples/blob/master/Blog/Image-flipping-extension/public/images/ext-auth.png?raw=true)
+
 
 Now that the app has been authorized, the extension is available in the Open dropdown next to image files and is also listed in the Connected Apps page in the user’s Dropbox settings. When the extension is clicked from an image file, it will redirect them to the server we defined in the Extension settings and start the workflow in the images below.
 
-![Sample Extension displayed on a file’s Open menu](https://github.com/dropbox/developer-samples/blob/master/blog/image-flipping-extension/public/images/ext-open-menu.png?raw=true)
+![Sample Extension displayed on a file’s Open menu](https://github.com/dropbox/Developer-Samples/blob/master/Blog/Image-flipping-extension/public/images/ext-open-menu.png?raw=true)
 
-![User interface for  “Flip my image” sample Extension](https://github.com/dropbox/developer-samples/blob/master/blog/image-flipping-extension/public/images/flipped-image-ui.png?raw=true)
+![User interface for  “Flip my image” sample Extension](https://github.com/dropbox/Developer-Samples/blob/master/Blog/Image-flipping-extension/public/images/flipped-image-ui.png?raw=true)
 
 When *Save to Dropbox* is clicked*,* the flipped image will be saved to Dropbox with the suffix (edited - FlipImage). The server also creates a Dropbox shared link and redirects the user to the link.
 
-![Flipped image displayed through a Dropbox shared link](https://github.com/dropbox/developer-samples/blob/master/blog/image-flipping-extension/public/images/flipped-image-shared-link.png?raw=true)
+![Flipped image displayed through a Dropbox shared link](https://github.com/dropbox/Developer-Samples/blob/master/Blog/Image-flipping-extension/public/images/flipped-img-shared-link.png?raw=true)
 
 # Important considerations
 
@@ -108,7 +109,7 @@ For both cases, expired or non existent tokens in the current session, users wil
 
 Some Dropbox users have a personal and work accounts linked together. For this case, at the authorization step the user will need to pick between either of those two. When an action is originated from a file in Dropbox a `require_role` parameter is passed along indicating which of the two accounts started the request. When the app requires a user to re-authorize as described in the section above, that parameter can be passed in the authorization call to preselect the correct account as shown in the image below.
 
-![Authorization screen for users with linked personal and work Dropbox accounts](https://github.com/dropbox/developer-samples/blob/master/blog/image-flipping-extension/public/images/personal-work-auth.png?raw=true)
+![Authorization screen for users with linked personal and work Dropbox accounts](https://github.com/dropbox/Developer-Samples/blob/master/Blog/Image-flipping-extension/public/images/personal-work-auth.png?raw=true)
 
 ## Making it work for all Dropbox Business users
 

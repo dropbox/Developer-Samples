@@ -10,4 +10,5 @@ All code in this repo is written as samples for education and demonstration only
 
 #### Blog
 
-- Converting Dropbox activity log to CEF events
+- [Converting Dropbox activity log to CEF events](https://github.com/dropbox/Developer-Samples/tree/master/Blog/Convert-activity-log-to-CEF-events)
+- [Image Flipping Extension Sample](https://github.com/dropbox/Developer-Samples/tree/master/Blog/Image-flipping-extension)

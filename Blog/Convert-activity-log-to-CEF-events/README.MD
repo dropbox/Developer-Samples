@@ -1,5 +1,8 @@
 # Convert Dropbox activity log to CEF events
 
+By Tahsin Islam  
+April, 2020
+
 This script can be used to transform Dropbox activity log events retrieved from the [team log endpoint](https://www.dropbox.com/developers/documentation/http/teams#team_log-get_events) to the [CEF standard](https://community.microfocus.com/t5/ArcSight-Connectors/ArcSight-Common-Event-Format-CEF-Implementation-Standard/ta-p/1645557?attachment-id=68077) developed by MicroFocus ArcSight.
 
 ### Getting Started

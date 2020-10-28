@@ -1,5 +1,8 @@
 # Image Flipping Extension Sample
 
+By Ruben Rincon  
+July, 2020
+
 ## Background
 
 This code sample shows how to integrate [Dropbox Extensions](https://www.dropbox.com/lp/developers/reference/extensions-guide) into an application. It implements a minimalist web server able to handle multiple Dropbox users at the same time which receives actions from images in dropbox.com. Every time an action is triggered, it presents the original image selected and an upside down (flipped) version of it, along with a save option. When the user clicks on *save*, the flipped version is saved to Dropbox in the same path as the original image. Finally, a [shared link](https://www.dropbox.com/lp/developers/reference/dbx-sharing-guide) is created for the newly uploaded image, and the user is redirected to it.

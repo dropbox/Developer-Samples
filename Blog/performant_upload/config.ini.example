@@ -1,0 +1,39 @@
+[PATHS]
+# Local path of folder of files to upload (non-recursive)
+local_path = ./files_to_upload
+# Remote path of folder in Dropbox to upload to
+remote_path = /uploaded_files
+
+[AUTHORIZATION]
+# To upload to an account, you'll need either an access token or a refresh token with
+# corresponding app key/secret. The authorization must include the 'files.content.write' scope.
+# The access token, refresh token, and app secret should be stored securely and never made public.
+
+# Access token to use to perform the API calls
+access_token = <ACCESS_TOKEN>
+# Refresh token to use to retrieve access tokens
+refresh_token = <REFRESH_TOKEN>
+# App key to use to retrieve access tokens. Required when using a refresh token
+app_key = <APP_KEY>
+# App secret to use to retrieve access tokens
+# Required when using a refresh token not acquired using PKCE
+app_secret = <APP_SECRET>
+
+
+[LIMITS]
+# These three values can be tuned for better (or worse) overall performance
+# based on the scenario and environment:
+
+# The amount of data, in bytes, to send per upload request
+# Must be a multiple of 4 MB
+# 25165824 bytes is 24 MB (24 * 1024 * 1024)
+chunk_size = 25165824
+# How many threads to use per batch of upload sessions
+# The maximum number of upload sessions that will be run in parallel at one time
+batch_thread_count = 20
+# How many threads to use per upload session
+# The maximum number of threads that will be run in parallel at one time for a single upload session
+concurrent_thread_count = 10
+# (batch_thread_count * concurrent_thread_count) is the maximum number of threads used at a time
+# For a large number of small files, bias batch_thread_count over concurrent_thread_count
+# For a small number of large files, bias concurrent_thread_count over batch_thread_count

@@ -1,0 +1,12 @@
+[DEFAULT]
+# App key to use to retrieve access tokens
+# Required when using a refresh token
+app_key = <APP_KEY>
+# App secret to use to retrieve access tokens
+# Required when using a refresh token not acquired using PKCE
+app_secret = <APP_SECRET>
+# Refresh token to use to retrieve access tokens for the team
+team_refresh_token = <REFRESH_TOKEN>
+# Member ID of team admin to operate as
+# This should start with 'dbmid:'
+team_admin_member_id = <MEMBER_ID>

@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropbox Files</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .logout-btn {
+            background-color: #757575;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        .logout-btn:hover {
+            background-color: #616161;
+        }
+        .folder-path {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .folder-path a {
+            color: #0061fe;
+            text-decoration: none;
+        }
+        .folder-path a:hover {
+            text-decoration: underline;
+        }
+        .file-list {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+        .file-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ddd;
+            padding: 10px 0;
+            font-weight: bold;
+            color: #333;
+        }
+        .file-header-name,
+        .file-header-modified,
+        .file-header-size,
+        .file-header-actions {
+            display: flex;
+            align-items: center;
+        }
+        .file-header-name { width: 40%; }
+        .file-header-modified { width: 25%; justify-content: center; }
+        .file-header-size { width: 15%; justify-content: center;}
+        .file-header-actions { width: 20%; justify-content: flex-end; }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        .file-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 40%;
+        }
+        .file-modified,
+        .file-size-col {
+            color: #888;
+            font-size: 0.9em;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .file-modified { width: 25%; }
+        .file-size-col { width: 15%; }
+        .file-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 20%;
+            justify-content: flex-end;
+        }
+        .action-link {
+            color: #666;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .action-link:hover {
+            color: #0061fe;
+            background-color: #f0f0f0;
+        }
+        .action-link i {
+            font-size: 1.1em;
+        }
+        .empty-message {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+        .member-select {
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .member-select select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            width: 200px;
+        }
+        .member-select label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .space-toggle {
+            display: flex;
+            align-items: center;
+            margin: 0 20px;
+        }
+        .toggle-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toggle-label {
+            font-size: 14px;
+            color: #666;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+        input:checked + .slider {
+            background-color: #0061fe;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        input:disabled + .slider {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+        input:disabled + .slider:before {
+            background-color: #f5f5f5;
+        }
+        .slider.round {
+            border-radius: 34px;
+        }
+        .slider.round:before {
+            border-radius: 50%;
+        }
+        .space-badge {
+            display: inline-block;
+            font-size: 0.75em;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        .space-team {
+            background-color: #0061fe;
+            color: white;
+        }
+        .space-member {
+            background-color: #f1c40f;
+            color: black;
+        }
+        .download-link {
+            color: #666;
+            margin-left: 10px;
+            text-decoration: none;
+        }
+        .download-link:hover {
+            color: #0061fe;
+        }
+        /* Upload form styles */
+        .upload-form {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px dashed #ddd;
+        }
+        .upload-form input[type="file"] {
+            margin-right: 10px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 300px;
+        }
+        .upload-btn {
+            background-color: #0061fe;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .upload-btn:hover {
+            background-color: #0056e0;
+        }
+        .upload-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #upload-progress {
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+        .spinner {
+            color: #0061fe;
+            font-size: 24px;
+            margin: 10px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .upload-status {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        /* Success message popup styles */
+        .success-popup {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .success-popup i {
+            margin-right: 8px;
+        }
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            position: relative;
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        .close:hover {
+            color: #000;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            display: block;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background-color: #0061fe;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056e0;
+        }
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .share-url-container {
+            display: flex;
+            gap: 10px;
+        }
+        .share-url-container input {
+            flex-grow: 1;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="top-bar">
+        <h2>
+            Welcome, {{ account.name.display_name }}
+            {% if auth_type == 'team' %}
+                (Team: {{ team_info.name }})
+            {% endif %}
+            {% if root == 'root' %}
+                <span class="space-badge space-team">Team Space</span>
+            {% else %}
+                <span class="space-badge space-member">Member Folder</span>
+            {% endif %}
+        </h2>
+
+        <div class="space-toggle">
+            <form method="get" action="{{ url_for('browse', auth_type=auth_type) }}" class="toggle-form">
+                <input type="hidden" name="root" id="root_hidden" value="{{ 'home' if root == 'root' else 'root' }}">
+                <label class="switch">
+                    <input type="checkbox"
+                           id="root_toggle_checkbox"
+                           {% if root == 'root' %}checked{% endif %}
+                           {% if disable_team_space %}disabled{% endif %}
+                           onchange="this.form.submit();">
+                    <span class="slider round"></span>
+                </label>
+                <span class="toggle-label">Team Space{% if disable_team_space %} (Not Available){% endif %}</span>
+                {% if selected_member_id %}
+                    <input type="hidden" name="member_id" value="{{ selected_member_id }}">
+                {% endif %}
+            </form>
+        </div>
+
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    </div>
+
+    {% if auth_type == 'team' and team_members %}
+        <div class="member-select">
+            <form method="get" action="{{ url_for('browse', auth_type='team') }}">
+                <label for="member">Select Team Member:</label>
+                <select name="member_id" id="member" onchange="this.form.submit()">
+                    {% for member in team_members %}
+                        <option value="{{ member.profile.team_member_id }}" {% if selected_member_id == member.profile.team_member_id %}selected{% endif %}>
+                            {{ member.profile.name.display_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% if current_path %}
+                    <input type="hidden" name="folder_path" value="{{ current_path }}">
+                {% endif %}
+                <input type="hidden" name="root" value="{{ root }}">
+            </form>
+        </div>
+    {% endif %}
+
+    {% if current_path %}
+        <div class="folder-path">
+            <a href="{{ url_for('browse', auth_type=auth_type, member_id=selected_member_id, folder_path='', root=root) }}">
+                <i class="fas fa-home"></i> Root
+            </a>
+            {% set parts = current_path.split('/') %}
+            {% set cumulative = '' %}
+            {% for part in parts %}
+                {% if part %}
+                    {% set cumulative = cumulative + '/' + part %}
+                    / <a href="{{ url_for('browse', auth_type=auth_type, member_id=selected_member_id, folder_path=cumulative, root=root) }}">
+                        {{ part }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="upload-form">
+        <form action="{{ url_for('upload', auth_type=auth_type) }}" method="post" enctype="multipart/form-data" id="upload-form">
+            <input type="file" name="file" id="file" required>
+            {% if current_path %}
+                <input type="hidden" name="folder_path" value="{{ current_path }}">
+            {% endif %}
+            {% if selected_member_id %}
+                <input type="hidden" name="member_id" value="{{ selected_member_id }}">
+            {% endif %}
+            <input type="hidden" name="root" value="{{ root }}">
+            <button type="submit" class="upload-btn">
+                <i class="fas fa-upload"></i> Upload File
+            </button>
+        </form>
+        <div id="upload-progress">
+            <i class="fas fa-spinner spinner"></i>
+            <div class="upload-status">Uploading file...</div>
+        </div>
+    </div>
+
+    <!-- Success Message Popup -->
+    <div id="success-popup" class="success-popup">
+        <i class="fas fa-check-circle"></i>
+        <span>File uploaded successfully!</span>
+    </div>
+
+    <div class="file-list">
+        <div class="file-list-header">
+            <div class="file-header-name">Name</div>
+            <div class="file-header-modified">Modified</div>
+            <div class="file-header-size">Size</div>
+            <div class="file-header-actions"></div>
+        </div>
+        {% if entries %}
+            {% for entry in entries %}
+                <div class="file-item">
+                    <div class="file-name">
+                        {% if isinstance(entry, dropbox.files.FolderMetadata) %}
+                            <i class="fas fa-folder" style="color: #0061fe;"></i>
+                            <a href="{{ url_for('browse', auth_type=auth_type, member_id=selected_member_id, folder_path=entry.path_lower, root=root) }}">
+                                {{ entry.name }}
+                            </a>
+                        {% elif isinstance(entry, dropbox.files.FileMetadata) %}
+                            <i class="fas fa-file" style="color: #999;"></i>
+                            {{ entry.name }}
+                        {% else %}
+                            <i class="fas fa-question-circle"></i>
+                            {{ entry.name }}
+                        {% endif %}
+                    </div>
+                    <div class="file-modified">
+                        {% if isinstance(entry, dropbox.files.FileMetadata) and entry.server_modified %}
+                            <span class="utc-time" data-utc="{{ entry.server_modified.strftime('%Y-%m-%dT%H:%M:%SZ') }}">
+                                {{ entry.server_modified.strftime('%Y-%m-%d %H:%M') }}
+                            </span>
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                    <div class="file-size-col">
+                        {% if isinstance(entry, dropbox.files.FileMetadata) %}
+                            <span class="file-size" data-bytes="{{ entry.size }}">{{ entry.size }} B</span>
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                    <div class="file-actions">
+                        {% if isinstance(entry, dropbox.files.FileMetadata) or isinstance(entry, dropbox.files.FolderMetadata) %}
+                            <a href="#"
+                               onclick="openShareModal(event, '{{ entry.path_lower }}')"
+                               title="Share {{ 'file' if isinstance(entry, dropbox.files.FileMetadata) else 'folder' }}"
+                               class="action-link">
+                                <i class="fas fa-share-alt"></i>
+                            </a>
+                        {% endif %}
+                        {% if isinstance(entry, dropbox.files.FileMetadata) %}
+                            <a href="{{ url_for('download', path=entry.path_lower, auth_type=auth_type, member_id=selected_member_id, root=root) }}"
+                               title="Download file"
+                               class="action-link">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="empty-message">This folder is empty.</p>
+        {% endif %}
+    </div>
+    <div id="share-popup" class="success-popup" style="background-color: #0061fe;">
+        <i class="fas fa-link"></i>
+        <span>Link copied to clipboard!</span>
+    </div>
+
+    <!-- Share Settings Modal -->
+    <div id="shareModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Share Settings</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="shareUrlSection" style="display: none; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label>Current Shared Link:</label>
+                        <div class="share-url-container">
+                            <input type="text" id="shareUrl" readonly class="form-control">
+                            <button id="copyLink" class="btn btn-secondary">Copy</button>
+                        </div>
+                        <small class="form-text text-muted">Access Level: Viewer (can only view and comment)</small>
+                    </div>
+                </div>
+                <form id="shareSettingsForm">
+                    <input type="hidden" id="shareFilePath" name="path">
+                    <div class="form-group">
+                        <label for="audience">Who can access:</label>
+                        <select id="audience" name="audience" class="form-control">
+                            <option value="public">Anyone with the link</option>
+                            <option value="team">Team members only</option>
+                            <option value="no_one">No additional access</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="require_password" name="require_password"> Password protect this link
+                        </label>
+                    </div>
+                    <div id="passwordSection" class="form-group" style="display: none;">
+                        <label for="link_password">Password:</label>
+                        <input type="password" id="link_password" name="link_password" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="allow_download" name="allow_download"> Disable download
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="expires">Link expires:</label>
+                        <select id="expires" name="expires" class="form-control">
+                            <option value="never">Never</option>
+                            <option value="1">1 day</option>
+                            <option value="7">7 days</option>
+                            <option value="30">30 days</option>
+                            <option value="custom">Custom date</option>
+                        </select>
+                    </div>
+                    <div id="customDateSection" class="form-group" style="display: none;">
+                        <label for="expiration_timestamp">Expiration date:</label>
+                        <input type="date" id="expiration_timestamp" name="expiration_timestamp" class="form-control">
+                        <small class="form-text text-muted">The link will expire at the end of the selected date (midnight UTC)</small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="createShareBtn">Update Share Settings</button>
+                        <button type="button" class="btn btn-danger" id="revokeLink" style="display: none;">Revoke Link</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check for upload success parameter in URL and show popup
+        window.addEventListener('load', function() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('upload_success') === 'true') {
+                    const successPopup = document.getElementById('success-popup');
+                    const fileName = urlParams.get('uploaded_file');
+                    successPopup.querySelector('span').textContent = `File "${fileName}" uploaded successfully!`;
+                    successPopup.style.display = 'block';
+
+                    setTimeout(function() {
+                        successPopup.style.display = 'none';
+                    }, 3000);
+                    
+                    // Remove the upload_success and uploaded_file parameters from URL without refreshing
+                    const newUrl = new URL(window.location.href);
+                    newUrl.searchParams.delete('upload_success');
+                    newUrl.searchParams.delete('uploaded_file');
+                    window.history.replaceState({}, '', newUrl);
+                }
+            } catch (e) {
+                // Ignore if params don't exist
+            }
+        });
+
+        // Convert UTC times and format file sizes
+        document.querySelectorAll('.utc-time, .file-size').forEach(function(element) {
+            if (element.classList.contains('utc-time')) {
+                const utcTime = element.getAttribute('data-utc');
+                const localTime = new Date(utcTime);
+                element.textContent = localTime.toLocaleString(undefined, {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            } else { // file-size
+                const bytes = parseInt(element.getAttribute('data-bytes'));
+                if (bytes === 0) {
+                    element.textContent = '0 B';
+                } else {
+                    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+                    const k = 1024;
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    element.textContent = parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + units[i];
+                }
+            }
+        });
+
+        document.getElementById('upload-form').addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('file');
+            const uploadBtn = document.querySelector('.upload-btn');
+            const progressDiv = document.getElementById('upload-progress');
+            
+            if (fileInput.files.length > 0) {
+                uploadBtn.disabled = true;
+                progressDiv.style.display = 'block';
+                
+                // Create and send FormData
+                const formData = new FormData(e.target);
+                
+                // Submit the form normally - no need for XHR
+                return true;
+            }
+            e.preventDefault();
+        });
+
+        // Open share modal and fetch initial data
+        async function openShareModal(e, path) {
+            e.preventDefault();
+
+            // Show share settings modal
+            const modal = document.getElementById('shareModal');
+            document.getElementById('shareFilePath').value = path;
+            
+            // Construct the fetch URL with all necessary parameters
+            const memberId = '{{ selected_member_id }}';
+            const root = '{{ root }}';
+            const authType = '{{ auth_type }}';
+            let fetchUrl = `/share?path=${encodeURIComponent(path)}&root=${root}&auth_type=${authType}`;
+            if (memberId) {
+                fetchUrl += `&member_id=${memberId}`;
+            }
+            // Check if file/folder already has a share link
+            try {
+                const response = await fetch(fetchUrl);
+                const data = await response.json();
+                if (data.success && data.url) {
+                    // File/folder is already shared, show both URL and form
+                    // Always use the exact URL from the API response
+                    const exactUrl = data.url;
+                    document.getElementById('shareUrl').value = exactUrl;
+                    document.getElementById('shareUrlSection').style.display = 'block';
+                    document.getElementById('revokeLink').style.display = 'block';
+                    document.getElementById('createShareBtn').textContent = 'Update Share Settings';
+                    
+                    // Apply existing settings if available
+                    if (data.settings) {
+                        const settings = data.settings;
+                        
+                        // Set audience
+                        const audienceSelect = document.getElementById('audience');
+                        audienceSelect.value = settings.audience || 'public';
+                        
+                        // Set password protection
+                        const requirePassword = document.getElementById('require_password');
+                        requirePassword.checked = settings.require_password || false;
+                        document.getElementById('passwordSection').style.display = requirePassword.checked ? 'block' : 'none';
+                        
+                        // Set download permission
+                        const allowDownload = document.getElementById('allow_download');
+                        allowDownload.checked = !settings.allow_download;
+                        
+                        // Set expiration
+                        const expiresSelect = document.getElementById('expires');
+                        if (settings.expires === 'custom' && settings.expiration_timestamp) {
+                            expiresSelect.value = 'custom';
+                            document.getElementById('customDateSection').style.display = 'block';
+                            document.getElementById('expiration_timestamp').value = settings.expiration_timestamp;
+                        } else {
+                            expiresSelect.value = 'never';
+                            document.getElementById('customDateSection').style.display = 'none';
+                        }
+                    }
+                } else {
+                    // File/folder is not shared, reset to initial state
+                    resetShareForm();
+                }
+            } catch (error) {
+                console.error('Error checking share status:', error);
+                resetShareForm();
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        // Modal close button
+        document.querySelector('.close').addEventListener('click', function() {
+            document.getElementById('shareModal').style.display = 'none';
+            resetShareForm();
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('shareModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                resetShareForm();
+            }
+        });
+
+        // Function to reset share form state
+        function resetShareForm() {
+            document.getElementById('shareUrlSection').style.display = 'none';
+            document.getElementById('shareUrl').value = '';
+            document.getElementById('shareSettingsForm').reset();
+            document.getElementById('revokeLink').style.display = 'none';
+            document.getElementById('passwordSection').style.display = 'none';
+            document.getElementById('customDateSection').style.display = 'none';
+            document.getElementById('createShareBtn').textContent = 'Create Link';
+        }
+
+        // Function to show popup message
+        function showPopupMessage(message, duration = 3000) {
+            const sharePopup = document.getElementById('share-popup');
+            sharePopup.querySelector('span').textContent = message;
+            sharePopup.style.display = 'block';
+            setTimeout(() => {
+                sharePopup.style.display = 'none';
+                sharePopup.querySelector('span').textContent = 'Link copied to clipboard!'; // Reset to default
+            }, duration);
+        }
+
+        // Handle share settings form submission
+        document.getElementById('shareSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const settings = {
+                path: formData.get('path'),
+                audience: formData.get('audience'),
+                require_password: formData.get('require_password') === 'on',
+                link_password: formData.get('link_password'),
+                allow_download: !(formData.get('allow_download') === 'on'),
+                expires: formData.get('expires'),
+                expiration_timestamp: formData.get('expiration_timestamp'),
+                member_id: '{{ selected_member_id }}',
+                root: '{{ root }}',
+                auth_type: '{{ auth_type }}'
+            };
+
+            // Add the existing URL if we have one
+            const existingUrl = document.getElementById('shareUrl').value;
+            if (existingUrl) {
+                settings.url = existingUrl;
+            }
+
+            fetch('/share', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(settings)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Always use the exact URL from the API response
+                    const exactUrl = data.url;
+                    document.getElementById('shareUrl').value = exactUrl;
+                    document.getElementById('shareUrlSection').style.display = 'block';
+                    document.getElementById('revokeLink').style.display = 'block';
+                    document.getElementById('createShareBtn').textContent = 'Update Share Settings';
+                    // Show success message
+                    showPopupMessage(data.SuccessMessage);
+                } else {
+                    alert('Error updating share settings: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating share settings');
+            });
+        });
+
+        // Handle copy link button
+        document.getElementById('copyLink').addEventListener('click', function() {
+            const shareUrl = document.getElementById('shareUrl');
+            shareUrl.select();
+            document.execCommand('copy');
+            showPopupMessage('Link copied to clipboard!');
+        });
+
+        // Handle revoke button
+        document.getElementById('revokeLink').addEventListener('click', function() {
+            const shareUrl = document.getElementById('shareUrl').value;
+            if (!shareUrl) {
+                alert('No shared link URL found to revoke');
+                return;
+            }
+            const memberId = '{{ selected_member_id }}';
+            const root = '{{ root }}';
+            const authType = '{{ auth_type }}';
+            let revokeUrl = `/share?url=${encodeURIComponent(shareUrl)}&root=${root}&auth_type=${authType}`;
+            if (memberId) {
+                revokeUrl += `&member_id=${memberId}`;
+            }
+
+            fetch(revokeUrl, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reset form to initial state
+                    resetShareForm();
+                    
+                    // Show success message
+                    showPopupMessage('Link has been revoked');
+                    
+                    // Close the modal after a delay
+                    setTimeout(() => {
+                        document.getElementById('shareModal').style.display = 'none';
+                    }, 3000);
+                } else {
+                    alert('Error revoking share link: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error revoking share link');
+            });
+        });
+
+        // Handle password protection toggle
+        document.getElementById('require_password').addEventListener('change', function() {
+            const passwordSection = document.getElementById('passwordSection');
+            passwordSection.style.display = this.checked ? 'block' : 'none';
+        });
+
+        // Handle custom expiration date toggle
+        document.getElementById('expires').addEventListener('change', function() {
+            const customDateSection = document.getElementById('customDateSection');
+            customDateSection.style.display = this.value === 'custom' ? 'block' : 'none';
+        });
+    </script>
+</body>
+</html> 

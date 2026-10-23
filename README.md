@@ -14,3 +14,7 @@ All code in this repo is written as samples for education and demonstration only
 - [Image Flipping Extension Sample](https://github.com/dropbox/Developer-Samples/tree/master/Blog/Image-flipping-extension)
 - [Performant Upload Example](https://github.com/dropbox/Developer-Samples/tree/master/Blog/performant_upload)
 - [Team Contents Listing Example](https://github.com/dropbox/Developer-Samples/tree/master/Blog/list_all_team_contents)
+
+## License
+
+Unless a sample says otherwise, the code in this repo is Copyright (c) 2026 Dropbox, Inc. and licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).

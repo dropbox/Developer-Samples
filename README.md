@@ -15,6 +15,10 @@ All code in this repo is written as samples for education and demonstration only
 - [Performant Upload Example](https://github.com/dropbox/Developer-Samples/tree/master/Blog/performant_upload)
 - [Team Contents Listing Example](https://github.com/dropbox/Developer-Samples/tree/master/Blog/list_all_team_contents)
 
+#### Sample Apps
+
+- [FolderSync: sync project folders with Dropbox managed users and AgentFS agents](https://github.com/dropbox/Developer-Samples/tree/master/Sample%20Apps/foldersync)
+
 ## License
 
 Unless otherwise noted:

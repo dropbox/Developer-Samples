@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "rootDir": "src",
+    "outDir": "dist",
+    "strict": true,
+    "allowArbitraryExtensions": true,
+    "noUncheckedIndexedAccess": true,
+    "types": [],
+    "skipLibCheck": true
+  },
+  "include": ["src/renderer", "src/shared"]
+}

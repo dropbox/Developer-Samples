@@ -1,0 +1,29 @@
+{
+  "name": "foldersync",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Folder sync sample for Agent Filesystem managed users",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/css-types.mjs && tsc -p tsconfig.renderer.json --noEmit && node scripts/build-renderer.mjs && node scripts/copy-static.mjs",
+    "start": "npm run build && node scripts/start.mjs",
+    "app": "npm run build && electron .",
+    "build:tokenserver": "cd tokenserver && go build -o ../out/tokenserver .",
+    "typecheck": "node scripts/css-types.mjs && tsc -p tsconfig.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
+    "test": "vitest run",
+    "package": "node scripts/package.mjs"
+  },
+  "devDependencies": {
+    "@electron/packager": "20.3.0",
+    "@types/node": "24.19.2",
+    "electron": "44.7.0",
+    "esbuild": "0.28.2",
+    "happy-dom": "21.0.1",
+    "typescript": "7.0.2",
+    "vitest": "5.0.4"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "productName": "FolderSync"
+}

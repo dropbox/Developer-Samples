@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Only the app's own scripts, styles, and images. No network, plugins, or forms. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>FolderSync</title>
+    <link rel="stylesheet" href="renderer.css" />
+  </head>
+  <body>
+    <div id="onboarding" data-css="onboarding" hidden>
+      <div data-css="titlebarDrag"></div>
+      <form id="sign-in" data-css="onboardingCard">
+        <img data-css="onboardingLogo" src="assets/dropbox-glyph.svg" alt="" />
+        <p id="instance-label" data-css="instanceLabel" hidden></p>
+        <h1>Sign in to FolderSync</h1>
+        <p data-css="muted">Enter a name. A new name creates a new Dropbox account for you; a name you used before signs you back in to the same one.</p>
+        <input id="user-name" type="text" placeholder="Your name" aria-label="Your name" autocomplete="off" spellcheck="false" required />
+        <button id="sign-in-button" data-css="btn primary wide" type="submit">Sign in</button>
+        <p id="setup-error" data-css="error" role="alert"></p>
+        <p id="server-status" data-css="hint" role="status"></p>
+        <details data-css="manual">
+          <summary>Advanced</summary>
+          <label>Token server URL<input id="server-url" type="url" /></label>
+        </details>
+      </form>
+    </div>
+
+    <div id="app" data-css="app" hidden>
+      <aside data-css="sidebar">
+        <div data-css="titlebarDrag"></div>
+        <div data-css="brand">
+          <img src="assets/dropbox-glyph.svg" alt="" />
+          <div>
+            <div data-css="brandName">FolderSync</div>
+            <div id="brand-sub" data-css="brandSub">Agent Filesystem</div>
+          </div>
+        </div>
+
+        <div data-css="account">
+          <div id="avatar" data-css="avatar" aria-hidden="true"></div>
+          <div data-css="accountText">
+            <div id="account-name" data-css="accountName"></div>
+          </div>
+          <button id="sign-out" data-css="iconBtn" type="button" title="Sign out" aria-label="Sign out">
+            <span data-icon="logout"></span>
+          </button>
+          <button id="delete-account" data-css="iconBtn danger" type="button" title="Delete account…" aria-label="Delete account">
+            <span data-icon="trash"></span>
+          </button>
+          <div id="token-state" data-css="tokenState" data-state="missing" role="status">
+            <span data-css="dot" aria-hidden="true"></span><span id="token-text">Not connected</span>
+          </div>
+        </div>
+
+        <div data-css="sectionHeader">
+          <span>Projects</span>
+          <button id="refresh-projects" data-css="iconBtn" type="button" title="Refresh" aria-label="Refresh projects">
+            <span data-icon="refresh"></span>
+          </button>
+        </div>
+        <ul id="projects" data-css="projectList" aria-label="Projects"></ul>
+        <p id="projects-error" data-css="error small" role="alert"></p>
+        <form id="new-project" data-css="newProject">
+          <input id="new-project-name" type="text" placeholder="New project" aria-label="New project name" required />
+          <button data-css="iconBtn" type="submit" title="Create project" aria-label="Create project">
+            <span data-icon="plus"></span>
+          </button>
+        </form>
+      </aside>
+
+      <main data-css="content">
+        <div data-css="titlebarDrag"></div>
+        <section id="empty" data-css="empty">
+          <img src="assets/dropbox-glyph.svg" alt="" />
+          <h2 id="empty-title">Pick a project</h2>
+          <p id="empty-text" data-css="muted">Choose a project on the left, or create a new one.</p>
+          <form id="empty-create" data-css="emptyCreate">
+            <input id="empty-create-name" type="text" placeholder="Project name" aria-label="Project name" autocomplete="off" spellcheck="false" required />
+            <button data-css="btn primary" type="submit">Create project</button>
+          </form>
+          <p id="empty-error" data-css="error" role="alert"></p>
+        </section>
+
+        <section id="project" data-css="project" hidden>
+          <header data-css="projectHeader">
+            <div data-css="projectTitle">
+              <h1 id="project-name"></h1>
+              <div data-css="path"><span data-icon="folder"></span><span id="project-dir"></span></div>
+            </div>
+            <div data-css="headerActions">
+              <button id="reveal-folder" data-css="btn" type="button">Show in Finder</button>
+              <button id="choose-folder" data-css="btn" type="button">Change folder…</button>
+            </div>
+          </header>
+
+          <div id="status-card" data-css="statusCard" data-state="never">
+            <div id="status-icon" data-css="statusIcon" aria-hidden="true"></div>
+            <div data-css="statusText">
+              <div id="status-title" data-css="statusTitle">Not synced yet</div>
+              <div id="status-detail" data-css="statusDetail muted" role="status"></div>
+            </div>
+            <div data-css="statusActions">
+              <button id="undo" data-css="btn" type="button" title="Undo changes FolderSync made in Dropbox">Undo<span data-icon="undo"></span></button>
+              <button id="sync-now" data-css="btn primary" type="button">Sync now</button>
+            </div>
+          </div>
+
+          <section data-css="panel filesPanel">
+            <div data-css="panelHeader">
+              <button id="files-toggle" data-css="panelToggle" type="button" aria-expanded="true" aria-controls="files-body">
+                <span data-icon="chevron-down"></span>Dropbox files
+              </button>
+              <button id="files-refresh" data-css="iconBtn" type="button" title="Refresh" aria-label="Refresh Dropbox files">
+                <span data-icon="refresh"></span>
+              </button>
+            </div>
+            <div id="files-body">
+              <p id="files-note" data-css="filesNote" role="status"></p>
+              <ul id="files-tree" data-css="filesTree" role="tree" aria-label="Dropbox files"></ul>
+            </div>
+          </section>
+
+          <div data-css="panels">
+            <section data-css="panel">
+              <h3>Recent activity</h3>
+              <ul id="activity" data-css="itemList" aria-label="Recent activity"></ul>
+            </section>
+            <section data-css="panel">
+              <h3>Issues <span id="issue-count" data-css="badge" hidden></span></h3>
+              <ul id="issues" data-css="itemList" aria-label="Issues"></ul>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="undo-dialog" data-css="dialog undoDialog">
+      <h2>Undo changes</h2>
+      <p data-css="muted">Changes FolderSync made to this project in Dropbox, newest first. Choose the oldest change to undo. It and every change after it are undone, then FolderSync syncs.</p>
+      <ul id="undo-list" data-css="undoList" role="listbox" aria-label="Changes"></ul>
+      <p id="undo-error" data-css="error" role="alert"></p>
+      <div data-css="dialogActions">
+        <button id="undo-cancel" data-css="btn" type="button">Cancel</button>
+        <button id="undo-submit" data-css="btn primary" type="button" disabled>Undo</button>
+      </div>
+    </dialog>
+
+    <dialog id="delete-project-dialog" data-css="dialog">
+      <div>
+        <h2>Delete this project from Dropbox?</h2>
+        <p>This deletes the folder <strong id="delete-project-name"></strong> and everything in it from Dropbox. Files on this computer stay where they are, and FolderSync stops syncing them.</p>
+        <label>Type the project name to confirm<input id="delete-project-confirm" type="text" autocomplete="off" spellcheck="false" /></label>
+        <p id="delete-project-error" data-css="error" role="alert"></p>
+        <div data-css="dialogActions">
+          <button id="delete-project-cancel" data-css="btn" type="button">Cancel</button>
+          <button id="delete-project-submit" data-css="btn danger" type="button" disabled>Delete project</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="delete-dialog" data-css="dialog">
+      <div>
+        <h2>Delete this account?</h2>
+        <p>This permanently deletes the Dropbox account <strong id="delete-name"></strong> and all its files. It can’t be undone. Files on this computer stay where they are.</p>
+        <label>Type the name to confirm<input id="delete-confirm" type="text" autocomplete="off" spellcheck="false" /></label>
+        <p id="delete-error" data-css="error" role="alert"></p>
+        <div data-css="dialogActions">
+          <button id="delete-cancel" data-css="btn" type="button">Cancel</button>
+          <button id="delete-submit" data-css="btn danger" type="button" disabled>Delete account</button>
+        </div>
+      </div>
+    </dialog>
+
+    <script type="module" src="renderer.js"></script>
+  </body>
+</html>

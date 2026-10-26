@@ -6,7 +6,7 @@ import {basename, dirname, join, resolve, sep} from 'node:path';
 
 import {groupChanges, listChanges, startUndo, undoStatus, type UndoStatus} from '../engine/agents';
 import {ensureRealFolder, refuseLinks} from '../engine/localScan';
-import {STATE_DIR, pathKey} from '../engine/paths';
+import {STATE_DIR, projectKey} from '../engine/paths';
 import {STATE_DB_FILES, openStateStore} from '../engine/stateStore';
 import {runSyncPass} from '../engine/syncPass';
 import type {Activity, ChangeGroup, ProjectInfo, SyncStatus, SyncSummary} from '../shared/types';
@@ -38,8 +38,7 @@ export interface ProjectsOptions {
 const ACCOUNT_CHANGING = 'Wait for the account change to finish, then try again.';
 
 export class Projects {
-  // Maps keyed by project are keyed by pathKey(name): Dropbox names ignore case,
-  // so Foo and foo are the same project.
+  // Maps keyed by project are keyed by projectKey(name).
   // Projects with a pass running, so only one pass runs per project.
   private readonly running = new Map<string, Promise<SyncSummary>>();
   // Projects with an undo or delete running, by what's running. Sync and the
@@ -86,9 +85,9 @@ export class Projects {
   private requireOwnFolder(name: string, dir = this.info(name).localDir): void {
     const others = new Map<string, string>();
     for (const other of [...this.opts.settings.chosenProjects(), ...this.known]) {
-      others.set(pathKey(other), other);
+      others.set(projectKey(other), other);
     }
-    others.delete(pathKey(name));
+    others.delete(projectKey(name));
     for (const other of others.values()) {
       const theirs = this.info(other).localDir;
       if (overlaps(dir, theirs)) {
@@ -110,7 +109,7 @@ export class Projects {
     // its sync state is still being deleted.
     this.requireAllIdle();
     this.requireOwnFolder(name, dir);
-    this.busy.set(pathKey(name), 'folder change');
+    this.busy.set(projectKey(name), 'folder change');
     const settings = this.opts.settings;
     const previous = settings.chosenLocalDir(name);
     settings.setLocalDir(name, dir);
@@ -124,35 +123,35 @@ export class Projects {
       }
       throw err;
     } finally {
-      this.busy.delete(pathKey(name));
+      this.busy.delete(projectKey(name));
     }
     return this.info(name);
   }
 
   activity(name: string): Activity[] {
-    return this.activityLog.get(pathKey(name)) ?? [];
+    return this.activityLog.get(projectKey(name)) ?? [];
   }
 
   // Runs one sync pass. A second call while a pass runs gets the same pass.
   async sync(name: string, allowMassDelete: boolean): Promise<SyncSummary> {
-    const existing = this.running.get(pathKey(name));
+    const existing = this.running.get(projectKey(name));
     if (existing) {
       return existing;
     }
     if (this.accountChanging) {
       throw new Error(ACCOUNT_CHANGING);
     }
-    const busy = this.busy.get(pathKey(name));
+    const busy = this.busy.get(projectKey(name));
     if (busy) {
       throw new Error(`Wait for the ${busy} to finish, then try again.`);
     }
     this.requireOwnFolder(name);
     const pass = this.runPass(name, allowMassDelete);
-    this.running.set(pathKey(name), pass);
+    this.running.set(projectKey(name), pass);
     try {
       return await pass;
     } finally {
-      this.running.delete(pathKey(name));
+      this.running.delete(projectKey(name));
     }
   }
 
@@ -160,11 +159,11 @@ export class Projects {
   async remove(name: string): Promise<void> {
     this.requireIdle(name);
     this.requireOwnFolder(name);
-    this.busy.set(pathKey(name), 'remove');
+    this.busy.set(projectKey(name), 'remove');
     try {
       await this.forget(name);
     } finally {
-      this.busy.delete(pathKey(name));
+      this.busy.delete(projectKey(name));
     }
   }
 
@@ -174,13 +173,13 @@ export class Projects {
   async delete(name: string): Promise<void> {
     this.requireIdle(name);
     this.requireOwnFolder(name);
-    this.busy.set(pathKey(name), 'delete');
+    this.busy.set(projectKey(name), 'delete');
     try {
       const api = await this.opts.clients.agentClient(name);
       await api.deleteV2(`/${name}`);
       await this.forget(name);
     } finally {
-      this.busy.delete(pathKey(name));
+      this.busy.delete(projectKey(name));
     }
   }
 
@@ -195,7 +194,7 @@ export class Projects {
   // throws, and sync stays blocked until a background check sees it finish.
   async undo(name: string, fromUs: number): Promise<void> {
     this.requireIdle(name);
-    this.busy.set(pathKey(name), 'undo');
+    this.busy.set(projectKey(name), 'undo');
     let stillRunning = false;
     try {
       this.opts.onStatus(name, {kind: 'syncing', step: 'Undoing changes in Dropbox…'});
@@ -223,14 +222,14 @@ export class Projects {
       throw err;
     } finally {
       if (!stillRunning) {
-        this.busy.delete(pathKey(name));
+        this.busy.delete(projectKey(name));
       }
     }
   }
 
   // Unblocks a project when an undo checked in the background finishes.
   private finishUndo(name: string, state: 'complete' | 'failed'): void {
-    this.busy.delete(pathKey(name));
+    this.busy.delete(projectKey(name));
     this.opts.onStatus(
       name,
       state === 'complete'
@@ -335,11 +334,11 @@ export class Projects {
     action: () => Promise<T>
   ): Promise<T> {
     this.requireIdle(name);
-    this.busy.set(pathKey(name), what);
+    this.busy.set(projectKey(name), what);
     try {
       return await action();
     } finally {
-      this.busy.delete(pathKey(name));
+      this.busy.delete(projectKey(name));
     }
   }
 
@@ -348,7 +347,7 @@ export class Projects {
   requireAllIdle(): void {
     const [name] = [...this.running.keys(), ...this.busy.keys()];
     if (name !== undefined) {
-      const what = this.busy.get(pathKey(name)) ?? 'sync';
+      const what = this.busy.get(projectKey(name)) ?? 'sync';
       throw new Error(`Wait for the ${what} in “${name}” to finish, then try again.`);
     }
   }
@@ -357,13 +356,16 @@ export class Projects {
     if (this.accountChanging) {
       throw new Error(ACCOUNT_CHANGING);
     }
-    if (this.running.has(pathKey(name)) || this.busy.has(pathKey(name))) {
+    if (this.running.has(projectKey(name)) || this.busy.has(projectKey(name))) {
       throw new Error('Wait for the sync to finish, then try again.');
     }
   }
 
   private recordActivity(name: string, activity: Activity): void {
-    this.activityLog.set(pathKey(name), [activity, ...this.activity(name)].slice(0, MAX_ACTIVITY));
+    this.activityLog.set(
+      projectKey(name),
+      [activity, ...this.activity(name)].slice(0, MAX_ACTIVITY)
+    );
     this.opts.onActivity(name, activity);
   }
 
@@ -386,7 +388,7 @@ export class Projects {
       }
       throw err;
     }
-    this.activityLog.delete(pathKey(name));
+    this.activityLog.delete(projectKey(name));
     this.opts.clients.forget(name);
     try {
       for (const file of STATE_DB_FILES) {

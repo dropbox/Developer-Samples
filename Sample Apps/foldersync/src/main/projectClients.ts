@@ -10,7 +10,7 @@
 // Reads use the managed user's token, and writes use the agent's.
 import {AgentTokenProvider, projectAgent, type AgentDirectory, type Rpc} from '../engine/agents';
 import {DropboxClient, type DropboxFiles, type TokenSource} from '../engine/dropboxApi';
-import {pathKey} from '../engine/paths';
+import {projectKey} from '../engine/paths';
 import {TokenManager} from '../engine/tokenManager';
 
 // What the app needs from a client with the managed user's token.
@@ -22,7 +22,7 @@ export interface AgentSession {
 }
 
 export class ProjectClients {
-  // By pathKey of the project name, since Dropbox names ignore case.
+  // By projectKey of the project name.
   private readonly sessions = new Map<string, Promise<AgentSession>>();
 
   constructor(
@@ -36,7 +36,7 @@ export class ProjectClients {
   // Finds or creates the project's agent once, and renews its tokens with the
   // user's token. A failed lookup is forgotten, so the next call tries again.
   agent(project: string): Promise<AgentSession> {
-    let session = this.sessions.get(pathKey(project));
+    let session = this.sessions.get(projectKey(project));
     if (!session) {
       const api = this.userApi();
       session = projectAgent(api, `/${project}`, this.directory()).then((agentId) => ({
@@ -44,11 +44,11 @@ export class ProjectClients {
         tokens: new TokenManager(new AgentTokenProvider(api, agentId)),
       }));
       session.catch(() => {
-        if (this.sessions.get(pathKey(project)) === session) {
-          this.sessions.delete(pathKey(project));
+        if (this.sessions.get(projectKey(project)) === session) {
+          this.sessions.delete(projectKey(project));
         }
       });
-      this.sessions.set(pathKey(project), session);
+      this.sessions.set(projectKey(project), session);
     }
     return session;
   }
@@ -74,8 +74,8 @@ export class ProjectClients {
 
   // Stops renewing a project's agent token, for example after it's removed.
   forget(project: string): void {
-    const session = this.sessions.get(pathKey(project));
-    this.sessions.delete(pathKey(project));
+    const session = this.sessions.get(projectKey(project));
+    this.sessions.delete(projectKey(project));
     session?.then((s) => s.tokens.stop()).catch(() => {});
   }
 

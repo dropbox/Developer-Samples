@@ -7,6 +7,7 @@
     "rootDir": "src",
     "outDir": "dist",
     "strict": true,
+    "allowArbitraryExtensions": true,
     "noUncheckedIndexedAccess": true,
     "types": [],
     "skipLibCheck": true

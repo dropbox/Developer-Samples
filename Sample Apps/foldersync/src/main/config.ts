@@ -7,7 +7,7 @@ import {mkdir, readFile, rename, writeFile} from 'node:fs/promises';
 import {homedir} from 'node:os';
 import {isAbsolute, join} from 'node:path';
 
-import {pathKey} from '../engine/paths';
+import {projectKey} from '../engine/paths';
 import type {ProjectInfo} from '../shared/types';
 
 const configDir = (): string => process.env.FOLDERSYNC_HOME ?? join(homedir(), '.foldersync');
@@ -34,8 +34,8 @@ function stringField(v: unknown, key: string): string | undefined {
 }
 
 export class Settings {
-  // The local folder chosen with Change folder…, by pathKey of the project
-  // name, since Dropbox names ignore case.
+  // The local folder chosen with Change folder…, by projectKey of the
+  // project name.
   private projectDirs = new Map<string, {name: string; dir: string}>();
   // Kept after signing out, so the sign-in screen is filled in next time.
   lastUserName: string | undefined;
@@ -78,10 +78,10 @@ export class Settings {
         if (typeof dir !== 'string' || !isAbsolute(dir)) {
           throw invalid(`an invalid folder for “${name}”`);
         }
-        if (settings.projectDirs.has(pathKey(name))) {
+        if (settings.projectDirs.has(projectKey(name))) {
           throw invalid(`two folders for “${name}”`);
         }
-        settings.projectDirs.set(pathKey(name), {name, dir});
+        settings.projectDirs.set(projectKey(name), {name, dir});
       }
     }
     settings.lastUserName = stringField(parsed, 'lastUserName');
@@ -114,7 +114,7 @@ export class Settings {
 
   // The folder chosen with Change folder…, if any.
   chosenLocalDir(name: string): string | undefined {
-    return this.projectDirs.get(pathKey(name))?.dir;
+    return this.projectDirs.get(projectKey(name))?.dir;
   }
 
   // The projects with a chosen local folder.
@@ -126,10 +126,10 @@ export class Settings {
     if (!isAbsolute(dir)) {
       throw new Error(`${dir} isn’t a full folder path.`);
     }
-    this.projectDirs.set(pathKey(name), {name, dir});
+    this.projectDirs.set(projectKey(name), {name, dir});
   }
 
   forgetProject(name: string): void {
-    this.projectDirs.delete(pathKey(name));
+    this.projectDirs.delete(projectKey(name));
   }
 }

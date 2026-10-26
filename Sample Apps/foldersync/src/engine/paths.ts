@@ -20,6 +20,12 @@ export function pathKey(path: string): string {
   return path.normalize('NFC').toLowerCase();
 }
 
+// Returns the key that identifies a project by name. Dropbox names ignore case
+// and Unicode form, so Foo and foo are the same project.
+export function projectKey(name: string): string {
+  return name.normalize('NFC').toLowerCase();
+}
+
 // Reports whether a file name is never synced.
 export function isIgnoredName(name: string): boolean {
   const lower = name.toLowerCase();

@@ -10,7 +10,8 @@
     "app": "npm run build && electron .",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
     "test": "vitest run",
-    "package": "node scripts/package.mjs"
+    "package": "node scripts/package.mjs",
+    "build:tokenserver": "cd tokenserver && go build -o ../out/tokenserver ."
   },
   "devDependencies": {
     "@electron/packager": "20.3.0",
